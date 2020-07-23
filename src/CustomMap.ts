@@ -1,5 +1,12 @@
 import { User } from './User';
 
+interface Mapable {
+	location: {
+		lat: number;
+		lng: number;
+	};
+	markerContent(): string;
+}
 export class CustomMap {
 	private googleMap: google.maps.Map;
 
@@ -13,13 +20,20 @@ export class CustomMap {
 		});
 	}
 
-	addMarket(user: User): void {
-		new google.maps.Marker({
+	addMarket(mapable: Mapable): void {
+		const marker = new google.maps.Marker({
 			map: this.googleMap,
 			position: {
-				lat: user.location.lat,
-				lng: user.location.lng
+				lat: mapable.location.lat,
+				lng: mapable.location.lng
 			}
+		});
+		const infoWindow = new google.maps.InfoWindow({
+			content: mapable.markerContent()
+		});
+
+		marker.addListener('click', (e) => {
+			infoWindow.open(this.googleMap, marker);
 		});
 	}
 }
